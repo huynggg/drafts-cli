@@ -1,0 +1,11 @@
+Input {
+	width: 100%;
+}
+
+SideBar {
+	width: 1fr;
+}
+
+#editor {
+	width: 3fr;
+}
