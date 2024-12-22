@@ -9,6 +9,7 @@ from textual.events import Key
 from textual.containers import VerticalGroup, Horizontal
 from textual.widgets import Footer, Header, Input, ListView, ListItem, Label, TextArea
 from database import Draft, initialize_db
+from helpers import extract_draft_id
 
 
 # Configure logging
@@ -29,11 +30,16 @@ class DraftsList(ListView):
 
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         editor = self.app.query_one("#editor")
-        # Get the id of the text
-        draft_id = event.item.query_one(Label).id
+        selected_draft = event.item.query_one(Label)
+        # Extract the id
+        extracted_id = extract_draft_id(selected_draft.id)
+        # Update the editor's opened draft id
+        editor.draft_id = extracted_id
+        # Get the content from the db
+        draft = Draft.get_by_id(extracted_id)
         # Update the content of the text area
         editor.focus()
-        editor.text = f'Selected {draft_id}'
+        editor.text = draft.content
 
 
 class SideBar(VerticalGroup):
@@ -48,7 +54,12 @@ class SideBar(VerticalGroup):
             drafts_list = Draft.select()
             for draft in drafts_list:
                 truncated_content = draft.content[0:20] + "..."
-                yield ListItem(Label(truncated_content, id=f'draft-{draft.id}'))
+                yield ListItem(Label(truncated_content.strip(), id=f'draft-{draft.id}'))
+
+
+class Editor(TextArea):
+    # content = var("")
+    draft_id = var(-1)
 
 
 class DraftsApp(App):
@@ -66,7 +77,7 @@ class DraftsApp(App):
         yield Header()
         with Horizontal():
             yield SideBar()
-            yield TextArea.code_editor(id="editor", language="markdown")
+            yield Editor.code_editor(id="editor", language="markdown")
         yield Footer()
 
     def action_search(self) -> None:
@@ -75,8 +86,15 @@ class DraftsApp(App):
         search_bar.focus()
 
     def action_save(self) -> None:
-        current_content = self.query_one("#editor", TextArea).text
-        Draft.create(content=current_content)
+        editor = self.query_one("#editor", Editor)
+        # Create a new draft if none selected
+        if editor.draft_id == -1:
+            Draft.create(content=editor.text)
+        else:
+            # If there is draft selected, save to that draft instead
+            selected_draft = Draft.get_by_id(editor.draft_id)
+            selected_draft.content = editor.text
+            selected_draft.save()
 
     def on_key(self, event: Key):
         if event.key == "tab" or event.key == "shift+tab":
