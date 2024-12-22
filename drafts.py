@@ -3,7 +3,7 @@
 # from textual.reactive import var
 import logging
 from textual import on
-from textual.reactive import reactive, var
+from textual.reactive import var
 from textual.logging import TextualHandler
 from textual.app import App, ComposeResult
 from textual.events import Key
@@ -23,11 +23,19 @@ logger = logging.getLogger(__name__)
 
 
 class DraftsList(ListView):
-    def on_key(self, event: Key) -> None:
-        if event.key == "j":
-            self.action_cursor_down()
-        elif event.key == "k":
-            self.action_cursor_up()
+    BINDINGS = [
+        ("ctrl+d", "delete", "Delete"),
+        ("k", "cursor_up", "Up"),
+        ("j", "cursor_down", "Down"),
+    ]
+
+    def action_delete(self) -> None:
+        # Highlighted child is ListItem, then query for Label to get the ID
+        highlighted_item_id = extract_draft_id(self.highlighted_child.query_one(Label).id)
+        hightlighted_note = Draft.get(Draft.id == highlighted_item_id)
+        if hightlighted_note.delete_instance():
+            # Remove the ListItem by index
+            self.pop(self.index)
 
     @on(ListView.Selected)
     def on_list_view_selected(self, event: ListView.Selected) -> None:
@@ -58,7 +66,7 @@ class SideBar(VerticalGroup):
         search_bar.can_focus = False
         yield search_bar
         # yield Input(placeholder="Search", type="text", id="search")
-        with DraftsList():
+        with DraftsList(id="draft-list"):
             drafts_list = Draft.select().order_by(Draft.modified_at.desc())
             for draft in drafts_list:
                 truncated_content = draft.content[0:20] + "..."
@@ -67,21 +75,38 @@ class SideBar(VerticalGroup):
     @on(Input.Changed, "#search")
     def on_search_bar_change(self, search_term: Input.Changed) -> None:
         logger.debug(search_term.value)
-        drafts_list = Draft.select().order_by(Draft.modified_at.desc())
         list_view = self.query_one(ListView)
-        # Clear the ListView
-        # list_view.clear()
-        # # Populate the ListView based on the search_term
-        # for draft in drafts_list:
-        #     if search_term.value in draft.content:
-        #         truncated_content = draft.content[0:20] + "..."
-        #         list_view.append(ListItem(Label(truncated_content.strip(), id=f'draft-{draft.id}')))
+        # Populate the list with new items
         list_view.refresh_draft_list(search_term.value)
 
 
 class Editor(TextArea):
-    # content = var("")
     draft_id = var(-1)
+    BINDINGS = [
+        ("ctrl+q", "quit", "Quit"),
+        ("ctrl+l", "search", "Search"),
+        ("ctrl+n", "new", "New"),
+        ("ctrl+s", "save", "Save"),
+    ]
+
+    def action_save(self) -> None:
+        draft_list = self.app.query_one(DraftsList)
+        # Create a new draft if none selected
+        if self.draft_id == -1:
+            new_draft = Draft.create(content=self.text)
+            # Update the draft_id to prevent creating new drafts on save
+            self.draft_id = new_draft.id
+            if new_draft:
+                draft_list.refresh_draft_list()
+        else:
+            # If there is draft selected, save to that draft instead
+            selected_draft = Draft.get_by_id(self.draft_id)
+            selected_draft.content = self.text
+            selected_draft.save()
+            # Get current search term to keep the list filtered
+            current_search_term = self.app.query_one("#search").value
+            # Reflect the change on sidebar
+            draft_list.refresh_draft_list(current_search_term)
 
 
 class DraftsApp(App):
@@ -91,7 +116,6 @@ class DraftsApp(App):
     BINDINGS = [
         ("ctrl+q", "quit", "Quit"),
         ("ctrl+l", "search", "Search"),
-        ("ctrl+s", "save", "Save"),
         ("ctrl+n", "new", "New"),
     ]
 
@@ -114,24 +138,7 @@ class DraftsApp(App):
         editor.draft_id = -1
         # Then clear the editor
         editor.text = ""
-
-    def action_save(self) -> None:
-        editor = self.query_one("#editor", Editor)
-        draft_list = self.query_one(DraftsList)
-        # Create a new draft if none selected
-        if editor.draft_id == -1:
-            new_draft = Draft.create(content=editor.text)
-            if new_draft:
-                draft_list.refresh_draft_list()
-        else:
-            # If there is draft selected, save to that draft instead
-            selected_draft = Draft.get_by_id(editor.draft_id)
-            selected_draft.content = editor.text
-            selected_draft.save()
-            # Get current search term to keep the list filtered
-            current_search_term = self.query_one("#search").value
-            # Reflect the change on sidebar
-            draft_list.refresh_draft_list(current_search_term)
+        editor.focus()
 
     def on_key(self, event: Key):
         if event.key == "tab" or event.key == "shift+tab":
