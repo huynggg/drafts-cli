@@ -61,6 +61,7 @@ class DraftsList(ListView):
         # Update the content of the text area
         editor.focus()
         editor.text = draft.content
+        editor.cursor_location = editor.document.end
 
     def refresh_draft_list(self, search_term: str = "") -> None:
         drafts_list = Draft.select().order_by(Draft.modified_at.desc())
