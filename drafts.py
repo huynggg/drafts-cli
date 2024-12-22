@@ -29,13 +29,26 @@ class DraftsList(ListView):
         ("j", "cursor_down", "Down"),
     ]
 
+    def on_mount(self) -> None:
+        self.border_subtitle = "Drafts"
+
     def action_delete(self) -> None:
-        # Highlighted child is ListItem, then query for Label to get the ID
-        highlighted_item_id = extract_draft_id(self.highlighted_child.query_one(Label).id)
-        hightlighted_note = Draft.get(Draft.id == highlighted_item_id)
-        if hightlighted_note.delete_instance():
-            # Remove the ListItem by index
-            self.pop(self.index)
+        try:
+            # Highlighted child is ListItem, then query for Label to get the ID
+            highlighted_item_id = extract_draft_id(self.highlighted_child.query_one(Label).id)
+            hightlighted_note = Draft.get(Draft.id == highlighted_item_id)
+            if hightlighted_note.delete_instance():
+                # Remove the ListItem by index
+                self.pop(self.index)
+                # Check if the deleted draft is also being opened in the editor
+                editor = self.app.query_one("#editor")
+                if highlighted_item_id == editor.draft_id:
+                    # Then clear the editor and update the current opened draft_id
+                    editor.draft_id = None
+                    editor.text = ""
+        except AttributeError:
+            logger.debug("No more item to delete")
+            return
 
     @on(ListView.Selected)
     def on_list_view_selected(self, event: ListView.Selected) -> None:
@@ -89,6 +102,9 @@ class Editor(TextArea):
         ("ctrl+s", "save", "Save"),
     ]
 
+    def on_mount(self) -> None:
+        self.border_subtitle = "Editor"
+
     def action_save(self) -> None:
         # Get current search term to keep the list filtered
         current_search_term = self.app.query_one("#search").value
@@ -121,7 +137,7 @@ class DraftsApp(App):
 
     def compose(self) -> ComposeResult:
         """Compose the UI of the app"""
-        yield Header()
+        # yield Header()
         with Horizontal():
             yield SideBar()
             yield Editor.code_editor(id="editor", language="markdown")
