@@ -31,12 +31,10 @@ class DraftsList(ListView):
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         editor = self.app.query_one("#editor")
         selected_draft = event.item.query_one(Label)
-        # Extract the id
-        extracted_id = extract_draft_id(selected_draft.id)
-        # Update the editor's opened draft id
-        editor.draft_id = extracted_id
+        # Extract the id then update the editor's opened draft id variable
+        editor.draft_id = extract_draft_id(selected_draft.id)
         # Get the content from the db
-        draft = Draft.get_by_id(extracted_id)
+        draft = Draft.get_by_id(editor.draft_id)
         # Update the content of the text area
         editor.focus()
         editor.text = draft.content
@@ -89,12 +87,19 @@ class DraftsApp(App):
         editor = self.query_one("#editor", Editor)
         # Create a new draft if none selected
         if editor.draft_id == -1:
-            Draft.create(content=editor.text)
+            new_draft = Draft.create(content=editor.text)
+            if new_draft:
+                self.query_one(DraftsList).append(ListItem(Label(new_draft.content, id=f'draft-{new_draft.id}')))
+                editor.text = ""
         else:
             # If there is draft selected, save to that draft instead
             selected_draft = Draft.get_by_id(editor.draft_id)
             selected_draft.content = editor.text
             selected_draft.save()
+            # Reflect the change on sidebar
+            listview_selected_draft = self.query_one(f'#draft-{selected_draft.id}')
+            truncated_content = selected_draft.content[0:20] + "..."
+            listview_selected_draft.update(truncated_content)
 
     def on_key(self, event: Key):
         if event.key == "tab" or event.key == "shift+tab":
