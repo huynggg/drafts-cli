@@ -2,6 +2,7 @@
 # from rich.traceback import Traceback
 # from textual.reactive import var
 import logging
+from rich.style import Style
 from textual import on
 from textual.reactive import var
 from textual.logging import TextualHandler
@@ -9,6 +10,7 @@ from textual.app import App, ComposeResult
 from textual.events import Key
 from textual.containers import VerticalGroup, Horizontal
 from textual.widgets import Footer, Header, Input, ListView, ListItem, Label, TextArea
+from textual.widgets.text_area import TextAreaTheme
 from database import Draft, initialize_db
 from helpers import extract_draft_id
 
@@ -94,6 +96,25 @@ class SideBar(VerticalGroup):
         list_view.refresh_draft_list(search_term.value)
 
 
+my_theme = TextAreaTheme(
+    # This name will be used to refer to the theme...
+    name="my_cool_theme",
+    # Basic styles such as background, cursor, selection, gutter, etc...
+    base_style=Style(bgcolor="black"),
+    cursor_style=Style(color="white", bgcolor="blue"),
+    cursor_line_style=Style(bgcolor="yellow"),
+    # `syntax_styles` is for syntax highlighting.
+    # It maps tokens parsed from the document to Rich styles.
+    syntax_styles={
+        "string": Style(color="red"),
+        "comment": Style(color="magenta"),
+    }
+)
+custom_theme = TextAreaTheme.get_builtin_theme("monokai")
+custom_theme.name = "custom_theme"
+custom_theme.base_style = Style(bgcolor="black")
+
+
 class Editor(TextArea):
     draft_id = var(None)
     BINDINGS = [
@@ -105,6 +126,8 @@ class Editor(TextArea):
 
     def on_mount(self) -> None:
         self.border_subtitle = "Editor"
+        self.register_theme(custom_theme)
+        self.theme = "custom_theme"
 
     def action_save(self) -> None:
         # Get current search term to keep the list filtered
