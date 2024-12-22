@@ -81,7 +81,7 @@ class SideBar(VerticalGroup):
 
 
 class Editor(TextArea):
-    draft_id = var(-1)
+    draft_id = var(None)
     BINDINGS = [
         ("ctrl+q", "quit", "Quit"),
         ("ctrl+l", "search", "Search"),
@@ -90,21 +90,21 @@ class Editor(TextArea):
     ]
 
     def action_save(self) -> None:
+        # Get current search term to keep the list filtered
+        current_search_term = self.app.query_one("#search").value
         draft_list = self.app.query_one(DraftsList)
         # Create a new draft if none selected
-        if self.draft_id == -1:
+        if self.draft_id is None:
             new_draft = Draft.create(content=self.text)
             # Update the draft_id to prevent creating new drafts on save
             self.draft_id = new_draft.id
             if new_draft:
-                draft_list.refresh_draft_list()
+                draft_list.refresh_draft_list(current_search_term)
         else:
             # If there is draft selected, save to that draft instead
             selected_draft = Draft.get_by_id(self.draft_id)
             selected_draft.content = self.text
             selected_draft.save()
-            # Get current search term to keep the list filtered
-            current_search_term = self.app.query_one("#search").value
             # Reflect the change on sidebar
             draft_list.refresh_draft_list(current_search_term)
 
@@ -134,8 +134,8 @@ class DraftsApp(App):
 
     def action_new(self) -> None:
         editor = self.query_one("#editor", Editor)
-        # Update the draft_id variable to -1
-        editor.draft_id = -1
+        # Update the draft_id variable to None
+        editor.draft_id = None
         # Then clear the editor
         editor.text = ""
         editor.focus()
