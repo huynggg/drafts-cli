@@ -2,6 +2,7 @@
 # from rich.traceback import Traceback
 # from textual.reactive import var
 import logging
+from textual import on
 from textual.reactive import reactive, var
 from textual.logging import TextualHandler
 from textual.app import App, ComposeResult
@@ -28,6 +29,7 @@ class DraftsList(ListView):
         elif event.key == "k":
             self.action_cursor_up()
 
+    @on(ListView.Selected)
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         editor = self.app.query_one("#editor")
         selected_draft = event.item.query_one(Label)
@@ -68,6 +70,7 @@ class DraftsApp(App):
         ("ctrl+q", "quit", "Quit"),
         ("ctrl+l", "search", "Search"),
         ("ctrl+s", "save", "Save"),
+        ("ctrl+n", "new", "New"),
     ]
 
     def compose(self) -> ComposeResult:
@@ -82,6 +85,13 @@ class DraftsApp(App):
         search_bar = self.query_one("#search", Input)
         search_bar.can_focus = True
         search_bar.focus()
+
+    def action_new(self) -> None:
+        editor = self.query_one("#editor", Editor)
+        # Update the draft_id variable to -1
+        editor.draft_id = -1
+        # Then clear the editor
+        editor.text = ""
 
     def action_save(self) -> None:
         editor = self.query_one("#editor", Editor)
