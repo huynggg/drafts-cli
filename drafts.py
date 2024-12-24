@@ -1,6 +1,3 @@
-# from rich.syntax import Syntax
-# from rich.traceback import Traceback
-# from textual.reactive import var
 import logging
 from rich.style import Style
 from textual import on
@@ -9,7 +6,7 @@ from textual.logging import TextualHandler
 from textual.app import App, ComposeResult
 from textual.events import Key
 from textual.containers import VerticalGroup, Horizontal
-from textual.widgets import Footer, Header, Input, ListView, ListItem, Label, TextArea
+from textual.widgets import Footer, Input, ListView, ListItem, Label, TextArea
 from textual.widgets.text_area import TextAreaTheme
 from database import Draft, initialize_db
 from helpers import extract_draft_id
@@ -51,6 +48,7 @@ class DraftsList(ListView):
                     # Otherwise, the user would try to save to a draft that was deleted
                     editor.draft_id = None
                     editor.text = ""
+                    self.app.notify("Draft was deleted!", timeout=4)
         except AttributeError:
             logger.debug("No more item to delete")
             return
@@ -145,6 +143,7 @@ class Editor(TextArea):
             self.draft_id = new_draft.id
             if new_draft:
                 draft_list.refresh_draft_list(current_search_term)
+                self.app.notify("New draft saved!", timeout=2)
         else:
             # If there is draft selected, save to that draft instead
             selected_draft = Draft.access_draft(self.draft_id)
@@ -152,6 +151,7 @@ class Editor(TextArea):
             selected_draft.save()
             # Reflect the change on sidebar
             draft_list.refresh_draft_list(current_search_term)
+            self.app.notify("Draft saved!", timeout=2)
 
 
 class DraftsApp(App):
