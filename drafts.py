@@ -38,14 +38,17 @@ class DraftsList(ListView):
         try:
             # Highlighted child is ListItem, then query for Label to get the ID
             highlighted_item_id = extract_draft_id(self.highlighted_child.query_one(Label).id)
-            hightlighted_note = Draft.get(Draft.id == highlighted_item_id)
-            if hightlighted_note.delete_instance():
+            # NOTE: need to check if the draft exists
+            # Also, do soft delete here
+            highlighted_note = Draft.access_draft(highlighted_item_id)
+            if highlighted_note.delete_instance():
                 # Remove the ListItem by index
                 self.pop(self.index)
                 # Check if the deleted draft is also being opened in the editor
                 editor = self.app.query_one("#editor")
                 if highlighted_item_id == editor.draft_id:
                     # Then clear the editor and update the current opened draft_id
+                    # Otherwise, the user would try to save to a draft that was deleted
                     editor.draft_id = None
                     editor.text = ""
         except AttributeError:
@@ -59,13 +62,14 @@ class DraftsList(ListView):
         # Extract the id then update the editor's opened draft id variable
         editor.draft_id = extract_draft_id(selected_draft.id)
         # Get the content from the db
-        draft = Draft.get_by_id(editor.draft_id)
+        draft = Draft.access_draft(editor.draft_id)
         # Update the content of the text area
         editor.focus()
         editor.text = draft.content
         editor.cursor_location = editor.document.end
 
     def refresh_draft_list(self, search_term: str = "") -> None:
+        # NOTE: Soft delete
         drafts_list = Draft.select().order_by(Draft.modified_at.desc())
         self.clear()
         for draft in drafts_list:
@@ -83,6 +87,7 @@ class SideBar(VerticalGroup):
         yield search_bar
         # yield Input(placeholder="Search", type="text", id="search")
         with DraftsList(id="draft-list"):
+            # NOTE: Soft delete
             drafts_list = Draft.select().order_by(Draft.modified_at.desc())
             for draft in drafts_list:
                 truncated_content = draft.content[0:20] + "..."
@@ -118,7 +123,6 @@ custom_theme.base_style = Style(bgcolor="black")
 class Editor(TextArea):
     draft_id = var(None)
     BINDINGS = [
-        ("ctrl+q", "quit", "Quit"),
         ("ctrl+l", "search", "Search"),
         ("ctrl+n", "new", "New"),
         ("ctrl+s", "save", "Save"),
@@ -142,7 +146,7 @@ class Editor(TextArea):
                 draft_list.refresh_draft_list(current_search_term)
         else:
             # If there is draft selected, save to that draft instead
-            selected_draft = Draft.get_by_id(self.draft_id)
+            selected_draft = Draft.access_draft(self.draft_id)
             selected_draft.content = self.text
             selected_draft.save()
             # Reflect the change on sidebar
@@ -154,7 +158,6 @@ class DraftsApp(App):
 
     CSS_PATH = "drafts.tcss"
     BINDINGS = [
-        ("ctrl+q", "quit", "Quit"),
         ("ctrl+l", "search", "Search"),
         ("ctrl+n", "new", "New"),
     ]

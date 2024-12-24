@@ -48,7 +48,8 @@ class Draft(BaseModel):
         This will also update the accessed_at
         """
         draft = Draft.get_by_id(draft_id)
-        draft.accessed_at = datetime.utcnow
+        draft.accessed_at = datetime.utcnow()
+        draft.save()
         return draft
 
 

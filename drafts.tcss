@@ -7,9 +7,19 @@ Input {
 }
 Label {
 	content-align: left top;
-	min-height: 10vh;
-	max-height: 10vh;
-	margin: 1;
+	border: solid white 50%;
+	width: 100%;
+	padding: 0;
+	min-height: 5fr;
+	max-height: 5fr;
+}
+Label:focus {
+	background: red;
+}
+
+ItemList {
+	margin: 0;
+	padding: 0;
 }
 
 SideBar {
@@ -18,24 +28,25 @@ SideBar {
 }
 
 DraftsList {
-	border: tall #f2c973;
+	border: solid #f2c973 40%;
 	border-subtitle-align: center;
 	background: black;
 }
 
 #editor:focus, #draft-list:focus {
-	border: tall #7197c7;
+	border: solid #f2c973;
 }
 
 #editor {
 	border-subtitle-align: center;
-	border: tall #f2c973;
+	border: solid #f2c973 40%;
 	background: black;
 }
 
 #search {
 	margin: 1 0;
 	background: black;
+	border: solid #f2c973 40%;
 }
 #search:focus {
 	border: solid #f2c973;
