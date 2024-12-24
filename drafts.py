@@ -32,13 +32,13 @@ class DraftsList(ListView):
     ]
 
     def on_mount(self) -> None:
-        self.border_subtitle = "Drafts"
+        self.border_title = "Drafts"
 
     def action_delete(self) -> None:
         try:
             # Highlighted child is ListItem, then query for Label to get the ID
             highlighted_item_id = extract_draft_id(self.highlighted_child.query_one(Label).id)
-            # NOTE: need to check if the draft exists
+            # NOTE: need to check if the draft exists?
             # Also, do soft delete here
             highlighted_note = Draft.access_draft(highlighted_item_id)
             if highlighted_note.delete_instance():
@@ -82,8 +82,9 @@ class SideBar(VerticalGroup):
     """The left bar containing the draft list and a search bar"""
 
     def compose(self) -> ComposeResult:
-        search_bar = Input(placeholder="Search", type="text", id="search")
+        search_bar = Input(placeholder="Search...", type="text", id="search")
         search_bar.can_focus = False
+        search_bar.border_title = "🔍"
         yield search_bar
         # yield Input(placeholder="Search", type="text", id="search")
         with DraftsList(id="draft-list"):
@@ -129,7 +130,7 @@ class Editor(TextArea):
     ]
 
     def on_mount(self) -> None:
-        self.border_subtitle = "Editor"
+        self.border_title = "Editor"
         self.register_theme(custom_theme)
         self.theme = "custom_theme"
 

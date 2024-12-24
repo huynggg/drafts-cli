@@ -29,7 +29,7 @@ SideBar {
 
 DraftsList {
 	border: solid #f2c973 40%;
-	border-subtitle-align: center;
+	border-title-align: left;
 	background: black;
 }
 
@@ -38,7 +38,7 @@ DraftsList {
 }
 
 #editor {
-	border-subtitle-align: center;
+	border-title-align: left;
 	border: solid #f2c973 40%;
 	background: black;
 }
