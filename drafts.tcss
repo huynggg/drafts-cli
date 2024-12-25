@@ -5,7 +5,7 @@ Input {
 	width: 100%;
 	height: 12%;
 }
-Label {
+Label.draft-item {
 	content-align: left top;
 	border: solid white 50%;
 	width: 100%;
@@ -50,4 +50,13 @@ DraftsList {
 }
 #search:focus {
 	border: solid #f2c973;
+}
+
+ConfirmationModal {
+	align: center middle;
+}
+
+ConfirmationModal > Container {
+	width: auto;
+	height: auto;
 }

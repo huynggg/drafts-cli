@@ -1,12 +1,14 @@
 import logging
 from rich.style import Style
 from textual import on
+from textual.message import Message
 from textual.reactive import var
 from textual.logging import TextualHandler
 from textual.app import App, ComposeResult
 from textual.events import Key
-from textual.containers import VerticalGroup, Horizontal
-from textual.widgets import Footer, Input, ListView, ListItem, Label, TextArea
+from textual.containers import VerticalGroup, Horizontal, Vertical
+from textual.widgets import Footer, Input, ListView, ListItem, Label, TextArea, Button
+from textual.screen import ModalScreen
 from textual.widgets.text_area import TextAreaTheme
 from database import Draft, initialize_db
 from helpers import extract_draft_id
@@ -21,6 +23,40 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+# Custom Message class to be used for confirmation
+class ConfirmationMessage(Message):
+    def __init__(self, action: str, confirmation: bool, data: dict | None = None):
+        super().__init__()
+        self.action = action
+        self.confirmation = confirmation
+        self.data = data
+
+
+# Confirmation widget
+class ConfirmationModal(ModalScreen):
+    def __init__(self, action: str, message: str) -> None:
+        super().__init__()
+        self.action = action
+        self.message = message
+
+    def compose(self) -> ComposeResult:
+        with Vertical():
+            yield Label(self.message)
+            with Horizontal():
+                yield Button("No", id="no")
+                yield Button("Yes", id="yes", variant="error")
+
+    @on(Button.Pressed, "#yes")
+    def confirmed_button(self, event: Button.Pressed) -> None:
+        self.app.post_message(ConfirmationMessage(action=self.action, confirmation=True))
+        # self.dismiss()
+
+    @on(Button.Pressed, "#no")
+    def cancel_button(self, event: Button.Pressed) -> None:
+        self.post_message(ConfirmationMessage(action=self.action, confirmation=False))
+        self.dismiss()
+
+
 class DraftsList(ListView):
     BINDINGS = [
         ("ctrl+d", "delete", "Delete"),
@@ -32,26 +68,8 @@ class DraftsList(ListView):
         self.border_title = "Drafts"
 
     def action_delete(self) -> None:
-        try:
-            # Highlighted child is ListItem, then query for Label to get the ID
-            highlighted_item_id = extract_draft_id(self.highlighted_child.query_one(Label).id)
-            # NOTE: need to check if the draft exists?
-            # Also, do soft delete here
-            highlighted_note = Draft.access_draft(highlighted_item_id)
-            if highlighted_note.delete_instance():
-                # Remove the ListItem by index
-                self.pop(self.index)
-                # Check if the deleted draft is also being opened in the editor
-                editor = self.app.query_one("#editor")
-                if highlighted_item_id == editor.draft_id:
-                    # Then clear the editor and update the current opened draft_id
-                    # Otherwise, the user would try to save to a draft that was deleted
-                    editor.draft_id = None
-                    editor.text = ""
-                    self.app.notify("Draft was deleted!", timeout=4)
-        except AttributeError:
-            logger.debug("No more item to delete")
-            return
+        self.app.push_screen(ConfirmationModal(message="Delete this draft?", action="delete_draft"))
+        # self.post_message(ConfirmationMessage(action="delete_draft", confirmation=True))
 
     @on(ListView.Selected)
     def on_list_view_selected(self, event: ListView.Selected) -> None:
@@ -73,7 +91,7 @@ class DraftsList(ListView):
         for draft in drafts_list:
             if search_term in draft.content:
                 truncated_content = draft.content[0:20] + "..."
-                self.append(ListItem(Label(truncated_content.strip(), id=f'draft-{draft.id}')))
+                self.append(ListItem(Label(truncated_content.strip(), id=f'draft-{draft.id}', classes="draft-item")))
 
 
 class SideBar(VerticalGroup):
@@ -90,7 +108,7 @@ class SideBar(VerticalGroup):
             drafts_list = Draft.select().order_by(Draft.modified_at.desc())
             for draft in drafts_list:
                 truncated_content = draft.content[0:20] + "..."
-                yield ListItem(Label(truncated_content.strip(), id=f'draft-{draft.id}'))
+                yield ListItem(Label(truncated_content.strip(), id=f'draft-{draft.id}', classes="draft-item"))
 
     @on(Input.Changed, "#search")
     def on_search_bar_change(self, search_term: Input.Changed) -> None:
@@ -191,6 +209,34 @@ class DraftsApp(App):
     def on_mount(self) -> None:
         # Focus on the search on start
         self.query_one("#editor", TextArea).focus()
+
+    @on(ConfirmationMessage)
+    def handle_draft_delete(self, message: ConfirmationMessage):
+        if message.action == "delete_draft" and message.confirmation is True:
+            # Current screen is the modal; need to pop() to go back to main screen
+            self.pop_screen()
+            list_view = self.query_one("#draft-list", DraftsList)
+            try:
+                # Highlighted child is ListItem, then query for Label to get the ID
+                highlighted_item_id = extract_draft_id(list_view.highlighted_child.query_one(Label).id)
+                # NOTE: need to check if the draft exists?
+                # Also, do soft delete here
+                highlighted_draft = Draft.access_draft(highlighted_item_id)
+                if highlighted_draft.delete_instance():
+                    # Remove the ListItem by index
+                    list_view.pop(list_view.index)
+                    # Toast
+                    self.notify("Draft was deleted!", timeout=4)
+                    # Check if the deleted draft is also being opened in the editor
+                    editor = self.query_one("#editor")
+                    if highlighted_item_id == editor.draft_id:
+                        # Then clear the editor and update the current opened draft_id
+                        # Otherwise, the user would try to save to a draft that was deleted
+                        editor.draft_id = None
+                        editor.text = ""
+            except AttributeError:
+                logger.debug("No more item to delete")
+                self.notify("Failed to delete draft ")
 
 
 if __name__ == "__main__":
