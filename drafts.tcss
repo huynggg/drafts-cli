@@ -1,6 +1,3 @@
-Screen {
-	background: black;
-}
 Input {
 	width: 100%;
 	height: 12%;
@@ -56,7 +53,22 @@ ConfirmationModal {
 	align: center middle;
 }
 
-ConfirmationModal > Container {
+ConfirmationModal > Vertical {
 	width: auto;
 	height: auto;
+	border: thick white 50%;
+	background: white 30%;
+}
+
+ConfirmationModal > Vertical > Label {
+	width: 100%;
+	content-align-horizontal: center;
+	margin-top: 1;
+}
+ConfirmationModal > Vertical > Horizontal {
+	width: auto;
+	height: auto;
+}
+ConfirmationModal > Vertical > Horizontal {
+	margin: 2 4;
 }

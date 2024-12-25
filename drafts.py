@@ -68,8 +68,10 @@ class DraftsList(ListView):
         self.border_title = "Drafts"
 
     def action_delete(self) -> None:
-        self.app.push_screen(ConfirmationModal(message="Delete this draft?", action="delete_draft"))
-        # self.post_message(ConfirmationMessage(action="delete_draft", confirmation=True))
+        if self.index is not None:
+            self.app.push_screen(ConfirmationModal(message="Delete this draft?", action="delete_draft"))
+        else:
+            self.app.notify("Delete failed - No draft selected")
 
     @on(ListView.Selected)
     def on_list_view_selected(self, event: ListView.Selected) -> None:
