@@ -1,6 +1,7 @@
 import logging
 from rich.style import Style
 from textual import on
+from textual.binding import Binding
 from textual.message import Message
 from textual.reactive import var
 from textual.logging import TextualHandler
@@ -34,6 +35,11 @@ class ConfirmationMessage(Message):
 
 # Confirmation widget
 class ConfirmationModal(ModalScreen):
+    BINDINGS = [
+        Binding("y", "yes", "Yes", show=False),
+        Binding("n", "no", "No", show=False),
+    ]
+
     def __init__(self, action: str, message: str) -> None:
         super().__init__()
         self.action = action
@@ -43,8 +49,15 @@ class ConfirmationModal(ModalScreen):
         with Vertical():
             yield Label(self.message)
             with Horizontal():
-                yield Button("No", id="no")
-                yield Button("Yes", id="yes", variant="error")
+                yield Button("[u]N[/u]o", id="no")
+                yield Button("[u]Y[/u]es", id="yes", variant="error")
+
+    def action_no(self) -> None:
+        self.post_message(ConfirmationMessage(action=self.action, confirmation=False))
+        self.dismiss()
+
+    def action_yes(self) -> None:
+        self.app.post_message(ConfirmationMessage(action=self.action, confirmation=True))
 
     @on(Button.Pressed, "#yes")
     def confirmed_button(self, event: Button.Pressed) -> None:

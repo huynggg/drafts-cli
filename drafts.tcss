@@ -30,6 +30,10 @@ DraftsList {
 	background: black;
 }
 
+#draft-list > ListItem.--highlight {
+	background: red 50%;
+}
+
 #editor:focus, #draft-list:focus {
 	border: solid #f2c973;
 }
