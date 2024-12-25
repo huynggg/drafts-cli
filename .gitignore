@@ -1,2 +1,17 @@
+# Python compiled files
 __pycache__/
-drafts.db
+*.py[cod]
+*.pyo
+*.pyd
+__pycache__/
+
+# Database
+*.db
+
+# Virtual environments
+venv/
+
+# Log files
+*.log
+# Temp files
+.DS_Store
