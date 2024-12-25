@@ -1,15 +1,14 @@
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import VerticalGroup, Horizontal, Vertical
-from textual.widgets import Footer, Input, ListView, ListItem, Label, TextArea, Button
+from textual.containers import Horizontal, Vertical
+from textual.widgets import Label, Button
 from textual.screen import ModalScreen
-from textual.widgets.text_area import TextAreaTheme
-from . / .. / messages import ConfirmationMessage
+
+from messages import ConfirmationMessage
+
 
 # Confirmation widget
-
-
 class ConfirmationModal(ModalScreen):
     BINDINGS = [
         Binding("y", "yes", "Yes", show=False),
