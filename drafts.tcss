@@ -28,6 +28,12 @@ DraftsList {
 	border: solid #f2c973 40%;
 	border-title-align: left;
 	background: black;
+	scrollbar-size-vertical: 1;
+	scrollbar-background: black 20%;
+	scrollbar-background-active: black 30%;
+	scrollbar-color: #f2c973 50%;
+	scrollbar-color-active: #f2c973 60%;
+	scrollbar-color-hover: #f2c973 60%;
 }
 
 #draft-list > ListItem.--highlight {
