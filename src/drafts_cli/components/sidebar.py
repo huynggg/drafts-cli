@@ -27,6 +27,6 @@ class SideBar(VerticalGroup):
     @on(Input.Changed, "#search")
     def on_search_bar_change(self, search_term: Input.Changed) -> None:
         logger.debug(search_term.value)
-        list_view = self.query_one(ListView)
+        list_view = self.query_one(DraftsList)
         # Populate the list with new items
         list_view.refresh_draft_list(search_term.value)

@@ -41,6 +41,6 @@ class DraftsList(ListView):
         drafts_list = Draft.select().order_by(Draft.modified_at.desc())
         self.clear()
         for draft in drafts_list:
-            if search_term in draft.content:
+            if search_term.lower() in draft.content.lower():
                 truncated_content = draft.content[0:20] + "..."
                 self.append(ListItem(Label(truncated_content.strip(), id=f'draft-{draft.id}', classes="draft-item")))
