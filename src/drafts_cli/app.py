@@ -19,8 +19,6 @@ class DraftsApp(App):
     BINDINGS = [
         Binding("ctrl+l", "search", "Search"),
         Binding("ctrl+n", "new", "New"),
-        Binding("ctrl+c", "clear", "Clear"),
-        Binding("ctrl+r", "refresh", "Refresh"),
     ]
 
     def compose(self) -> ComposeResult:
@@ -52,20 +50,8 @@ class DraftsApp(App):
         # Focus on the search on start
         self.query_one("#editor", TextArea).focus()
 
-    def action_clear(self) -> None:
-        self.query_one(DraftsList).clear()
-        self.notify("cleared")
-
-    def action_refresh(self) -> None:
-        # self.action_clear()
-        drafts_view = self.query_one(DraftsList)
-        drafts_list = Draft.select().order_by(Draft.modified_at.desc())
-        new_items = []
-        for draft in drafts_list:
-            new_items.append(DraftItem(content=draft.content, footer=str(draft.modified_at), id=f'draft-{draft.id}'))
-        drafts_view.extend(new_items)
-
     # For some reason, this cannot be put in the ConfirmationModal
+
     @on(ConfirmationMessage)
     def handle_draft_delete(self, message: ConfirmationMessage):
         if message.action == "delete_draft" and message.confirmation is True:
@@ -74,7 +60,7 @@ class DraftsApp(App):
             list_view = self.query_one("#draft-list", DraftsList)
             try:
                 # Highlighted child is ListItem, then query for Label to get the ID
-                highlighted_item_id = extract_draft_id(list_view.highlighted_child.id)
+                highlighted_item_id = extract_draft_id(list_view.highlighted_child.query_one(DraftItem).id)
                 # NOTE: need to check if the draft exists?
                 # Also, do soft delete here
                 highlighted_draft = Draft.access_draft(highlighted_item_id)
@@ -91,7 +77,6 @@ class DraftsApp(App):
                         editor.draft_id = None
                         editor.text = ""
             except AttributeError:
-                logger.debug("No more item to delete")
                 self.notify("Failed to delete draft ")
 
 

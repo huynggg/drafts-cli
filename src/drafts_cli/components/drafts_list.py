@@ -1,5 +1,5 @@
 from textual import on
-from textual.widgets import ListView, ListItem, Label
+from textual.widgets import ListView, ListItem
 from textual.binding import Binding
 
 from components import ConfirmationModal
@@ -27,11 +27,9 @@ class DraftsList(ListView):
     @on(ListView.Selected)
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         editor = self.app.query_one("#editor")
-
-        # selected_draft = event.item.query_one(ListItem)
+        selected_draft = event.item.query_one(DraftItem)
         # Extract the id then update the editor's opened draft id variable
-        editor.draft_id = extract_draft_id(event.item.id)
-        # self.notify(str(editor.draft_id))
+        editor.draft_id = extract_draft_id(selected_draft.id)
         # Get the content from the db
         draft = Draft.access_draft(editor.draft_id)
         # Update the content of the text area
@@ -40,21 +38,9 @@ class DraftsList(ListView):
         editor.cursor_location = editor.document.end
 
     def refresh_draft_list(self, search_term: str = "") -> None:
-        # await self.notify(f'{self.clear()}')
-        # for child in self.children:
-        #     self.notify(f'{child}')
-        # self.notify(f'before: {len(self)}')
-        # self.notify(f'{type(self)}')
-        # self.query_one(DraftsList).clear()
-        # self.clear()
-        self.notify(f'after: {len(self)}')
-        # self.notify(f'{(self.children)}')
-        # self.notify(f'{type(self)}')
-        # # NOTE: Soft delete
-        # drafts_list = Draft.select().order_by(Draft.modified_at.desc())
-        # new_items = []
-        # for draft in drafts_list:
-        #     if search_term.lower() in draft.content.lower():
-        #         # self.append(ListItem(DraftItem(content=draft.content, footer=str(draft.modified_at)), id=f'draft-{draft.id}', classes="draft-item"))
-        #         new_items.append(DraftItem(content=draft.content, footer=str(draft.modified_at), id=f'draft-{draft.id}'))
-        # self.extend(new_items)
+        self.clear()
+        # NOTE: Soft delete
+        drafts_list = Draft.select().order_by(Draft.modified_at.desc())
+        for draft in drafts_list:
+            if search_term.lower() in draft.content.lower():
+                self.append(ListItem(DraftItem(content=draft.content, footer=str(draft.modified_at), id=f'draft-{draft.id}')))
