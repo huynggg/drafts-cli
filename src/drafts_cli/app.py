@@ -58,7 +58,7 @@ class DraftsApp(App):
             list_view = self.query_one("#draft-list", DraftsList)
             try:
                 # Highlighted child is ListItem, then query for Label to get the ID
-                highlighted_item_id = extract_draft_id(list_view.highlighted_child.query_one(Label).id)
+                highlighted_item_id = extract_draft_id(list_view.highlighted_child.id)
                 # NOTE: need to check if the draft exists?
                 # Also, do soft delete here
                 highlighted_draft = Draft.access_draft(highlighted_item_id)
