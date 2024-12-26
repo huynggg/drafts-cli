@@ -1,6 +1,6 @@
 from textual import on
 from textual.containers import VerticalGroup
-from textual.widgets import Input, ListView, ListItem, Label
+from textual.widgets import Input, ListView, ListItem
 from textual.app import ComposeResult
 
 from components import DraftsList
@@ -24,7 +24,7 @@ class SideBar(VerticalGroup):
             for draft in drafts_list:
                 # truncated_content = draft.content[0:20] + "..."
                 # yield ListItem(Label(truncated_content.strip(), id=f'draft-{draft.id}', classes="draft-item"))
-                yield ListItem(DraftItem(content=draft.content, footer=str(draft.modified_at)), id=f"draft-{draft.id}", classes="draft-item")
+                yield DraftItem(content=draft.content, footer=str(draft.modified_at), id=f"draft-{draft.id}")
 
     @on(Input.Changed, "#search")
     def on_search_bar_change(self, search_term: Input.Changed) -> None:

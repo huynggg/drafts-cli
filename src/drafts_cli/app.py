@@ -1,3 +1,4 @@
+import time
 from textual import on
 from textual.binding import Binding
 from textual.app import App, ComposeResult
@@ -7,7 +8,7 @@ from textual.widgets import Footer, Input, Label, TextArea
 
 from database import Draft, initialize_db
 from messages import ConfirmationMessage
-from components import DraftsList, SideBar, Editor
+from components import DraftsList, SideBar, Editor, DraftItem
 from utilities import logger, extract_draft_id
 
 
@@ -18,6 +19,8 @@ class DraftsApp(App):
     BINDINGS = [
         Binding("ctrl+l", "search", "Search"),
         Binding("ctrl+n", "new", "New"),
+        Binding("ctrl+c", "clear", "Clear"),
+        Binding("ctrl+r", "refresh", "Refresh"),
     ]
 
     def compose(self) -> ComposeResult:
@@ -48,6 +51,19 @@ class DraftsApp(App):
     def on_mount(self) -> None:
         # Focus on the search on start
         self.query_one("#editor", TextArea).focus()
+
+    def action_clear(self) -> None:
+        self.query_one(DraftsList).clear()
+        self.notify("cleared")
+
+    def action_refresh(self) -> None:
+        # self.action_clear()
+        drafts_view = self.query_one(DraftsList)
+        drafts_list = Draft.select().order_by(Draft.modified_at.desc())
+        new_items = []
+        for draft in drafts_list:
+            new_items.append(DraftItem(content=draft.content, footer=str(draft.modified_at), id=f'draft-{draft.id}'))
+        drafts_view.extend(new_items)
 
     # For some reason, this cannot be put in the ConfirmationModal
     @on(ConfirmationMessage)

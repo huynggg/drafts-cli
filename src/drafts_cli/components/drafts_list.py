@@ -39,23 +39,22 @@ class DraftsList(ListView):
         editor.text = draft.content
         editor.cursor_location = editor.document.end
 
-    async def refresh_draft_list(self, search_term: str = "") -> None:
+    def refresh_draft_list(self, search_term: str = "") -> None:
         # await self.notify(f'{self.clear()}')
         # for child in self.children:
         #     self.notify(f'{child}')
-        self.notify(f'before: {len(self)}')
-        self.notify(f'{type(self)}')
+        # self.notify(f'before: {len(self)}')
+        # self.notify(f'{type(self)}')
         # self.query_one(DraftsList).clear()
-        await self.clear()
+        # self.clear()
         self.notify(f'after: {len(self)}')
         # self.notify(f'{(self.children)}')
-        self.notify(f'{type(self)}')
+        # self.notify(f'{type(self)}')
         # # NOTE: Soft delete
         # drafts_list = Draft.select().order_by(Draft.modified_at.desc())
         # new_items = []
-        # if len(self) == 0:
-        #     for draft in drafts_list:
-        #         if search_term.lower() in draft.content.lower():
-        #             # self.append(ListItem(DraftItem(content=draft.content, footer=str(draft.modified_at)), id=f'draft-{draft.id}', classes="draft-item"))
-        #             new_items.append(ListItem(DraftItem(content=draft.content, footer=str(draft.modified_at)), id=f'draft-{draft.id}', classes="draft-item"))
-        #     self.extend(new_items)
+        # for draft in drafts_list:
+        #     if search_term.lower() in draft.content.lower():
+        #         # self.append(ListItem(DraftItem(content=draft.content, footer=str(draft.modified_at)), id=f'draft-{draft.id}', classes="draft-item"))
+        #         new_items.append(DraftItem(content=draft.content, footer=str(draft.modified_at), id=f'draft-{draft.id}'))
+        # self.extend(new_items)
