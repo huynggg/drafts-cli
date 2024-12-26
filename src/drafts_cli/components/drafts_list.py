@@ -43,4 +43,4 @@ class DraftsList(ListView):
         drafts_list = Draft.select().order_by(Draft.modified_at.desc())
         for draft in drafts_list:
             if search_term.lower() in draft.content.lower():
-                self.append(ListItem(DraftItem(content=draft.content, footer=str(draft.modified_at), id=f'draft-{draft.id}')))
+                self.append(ListItem(DraftItem(content=draft.content, modified=str(draft.modified_at), id=f'draft-{draft.id}')))

@@ -21,7 +21,7 @@ class SideBar(VerticalGroup):
             # NOTE: Soft delete
             drafts_list = Draft.select().order_by(Draft.modified_at.desc())
             for draft in drafts_list:
-                yield ListItem(DraftItem(content=draft.content, footer=str(draft.modified_at), id=f"draft-{draft.id}"))
+                yield ListItem(DraftItem(content=draft.content, modified=str(draft.modified_at), id=f"draft-{draft.id}"))
 
     @on(Input.Changed, "#search")
     def on_search_bar_change(self, search_term: Input.Changed) -> None:

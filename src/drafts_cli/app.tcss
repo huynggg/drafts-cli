@@ -2,22 +2,20 @@ Input {
 	width: 100%;
 	height: 12%;
 }
-.draft-item {
+
+DraftItem {
 	content-align: left top;
+	margin-bottom: 1;
+	width: auto;
+	height: auto;
 	border: solid white 50%;
-	width: 100%;
-	padding: 0;
-	min-height: 5fr;
-	max-height: 5fr;
-}
-Label:focus {
-	background: red;
 }
 
-ItemList {
-	margin: 0;
-	padding: 0;
+DraftItem > Label {
+	border-top: solid white 50%;
+	width: 100%;
 }
+
 
 SideBar {
 	max-width: 20vw;
@@ -36,9 +34,6 @@ DraftsList {
 	scrollbar-color-hover: #f2c973 60%;
 }
 
-#draft-list > ListItem.--highlight {
-	background: red 50%;
-}
 
 #editor:focus, #draft-list:focus {
 	border: solid #f2c973;
