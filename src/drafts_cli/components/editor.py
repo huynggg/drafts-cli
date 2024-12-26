@@ -1,6 +1,6 @@
 from rich.style import Style
 from textual.reactive import var
-from textual.widgets import TextArea
+from textual.widgets import TextArea, ListView
 from textual.binding import Binding
 from textual.widgets.text_area import TextAreaTheme
 
@@ -44,6 +44,7 @@ class Editor(TextArea):
         # Get current search term to keep the list filtered
         current_search_term = self.app.query_one("#search").value
         draft_list = self.app.query_one(DraftsList)
+        # self.notify(f'{draft_list}')
         # Create a new draft if none selected
         if self.draft_id is None:
             new_draft = Draft.create(content=self.text)

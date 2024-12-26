@@ -1,8 +1,9 @@
 from textual import on
-from textual.widgets import ListView, ListItem, Label
+from textual.widgets import ListView, ListItem
 from textual.binding import Binding
 
 from components import ConfirmationModal
+from components.draft_item import DraftItem
 from database import Draft
 from utilities import extract_draft_id
 
@@ -26,7 +27,7 @@ class DraftsList(ListView):
     @on(ListView.Selected)
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         editor = self.app.query_one("#editor")
-        selected_draft = event.item.query_one(Label)
+        selected_draft = event.item.query_one(DraftItem)
         # Extract the id then update the editor's opened draft id variable
         editor.draft_id = extract_draft_id(selected_draft.id)
         # Get the content from the db
@@ -37,10 +38,9 @@ class DraftsList(ListView):
         editor.cursor_location = editor.document.end
 
     def refresh_draft_list(self, search_term: str = "") -> None:
+        self.clear()
         # NOTE: Soft delete
         drafts_list = Draft.select().order_by(Draft.modified_at.desc())
-        self.clear()
         for draft in drafts_list:
             if search_term.lower() in draft.content.lower():
-                truncated_content = draft.content[0:20] + "..."
-                self.append(ListItem(Label(truncated_content.strip(), id=f'draft-{draft.id}', classes="draft-item")))
+                self.append(ListItem(DraftItem(content=draft.content, footer=str(draft.modified_at), id=f'draft-{draft.id}')))

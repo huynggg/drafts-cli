@@ -2,7 +2,7 @@ Input {
 	width: 100%;
 	height: 12%;
 }
-Label.draft-item {
+.draft-item {
 	content-align: left top;
 	border: solid white 50%;
 	width: 100%;

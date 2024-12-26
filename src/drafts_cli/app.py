@@ -1,3 +1,4 @@
+import time
 from textual import on
 from textual.binding import Binding
 from textual.app import App, ComposeResult
@@ -7,7 +8,7 @@ from textual.widgets import Footer, Input, Label, TextArea
 
 from database import Draft, initialize_db
 from messages import ConfirmationMessage
-from components import DraftsList, SideBar, Editor
+from components import DraftsList, SideBar, Editor, DraftItem
 from utilities import logger, extract_draft_id
 
 
@@ -50,6 +51,7 @@ class DraftsApp(App):
         self.query_one("#editor", TextArea).focus()
 
     # For some reason, this cannot be put in the ConfirmationModal
+
     @on(ConfirmationMessage)
     def handle_draft_delete(self, message: ConfirmationMessage):
         if message.action == "delete_draft" and message.confirmation is True:
@@ -58,7 +60,7 @@ class DraftsApp(App):
             list_view = self.query_one("#draft-list", DraftsList)
             try:
                 # Highlighted child is ListItem, then query for Label to get the ID
-                highlighted_item_id = extract_draft_id(list_view.highlighted_child.query_one(Label).id)
+                highlighted_item_id = extract_draft_id(list_view.highlighted_child.query_one(DraftItem).id)
                 # NOTE: need to check if the draft exists?
                 # Also, do soft delete here
                 highlighted_draft = Draft.access_draft(highlighted_item_id)
@@ -75,7 +77,6 @@ class DraftsApp(App):
                         editor.draft_id = None
                         editor.text = ""
             except AttributeError:
-                logger.debug("No more item to delete")
                 self.notify("Failed to delete draft ")
 
 
