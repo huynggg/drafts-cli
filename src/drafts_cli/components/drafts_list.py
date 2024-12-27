@@ -10,9 +10,9 @@ from utilities import extract_draft_id
 
 class DraftsList(ListView):
     BINDINGS = [
-        Binding("ctrl+d", "delete", "Delete"),
         Binding("k", "cursor_up", "Up"),
         Binding("j", "cursor_down", "Down"),
+        Binding("ctrl+d", "delete", "Delete", key_display="ctrl+d"),
     ]
 
     def on_mount(self) -> None:
@@ -28,10 +28,10 @@ class DraftsList(ListView):
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         editor = self.app.query_one("#editor")
         selected_draft = event.item.query_one(DraftItem)
-        # Extract the id then update the editor's opened draft id variable
-        editor.draft_id = extract_draft_id(selected_draft.id)
+        # Update the editor's opened draft id variable
+        editor.draft_id = selected_draft.id
         # Get the content from the db
-        draft = Draft.access_draft(editor.draft_id)
+        draft = Draft.access_draft(extract_draft_id(editor.draft_id))
         # Update the content of the text area
         editor.focus()
         editor.text = draft.content

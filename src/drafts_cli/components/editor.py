@@ -8,6 +8,7 @@ from textual.widgets.text_area import TextAreaTheme
 
 from database import Draft
 from components import DraftsList, ConfirmationModal
+from utilities import extract_draft_id
 
 # Saved as an exmaple for future
 my_theme = TextAreaTheme(
@@ -34,9 +35,10 @@ class Editor(TextArea):
     is_saved = var(True)
 
     BINDINGS = [
-        Binding("ctrl+l", "search", "Search"),
-        Binding("ctrl+n", "new", "New"),
-        Binding("ctrl+s", "save", "Save"),
+        Binding("ctrl+l", "search", "Search", key_display="ctrl+l"),
+        Binding("ctrl+n", "new", "New", key_display="ctrl+n"),
+        Binding("ctrl+s", "save", "Save", key_display="ctrl+s"),
+        Binding("escape", "escape", "Escape", key_display="Back to list"),
     ]
 
     def on_mount(self) -> None:
@@ -53,26 +55,24 @@ class Editor(TextArea):
 
     @on(TextArea.Changed, "#editor")
     def update_save_state(self, event: TextArea.Changed) -> None:
-        # self.app.notify(f'{self.is_saved}')
         self.is_saved = False
 
     def action_save(self) -> None:
         # Get current search term to keep the list filtered
         current_search_term = self.app.query_one("#search").value
         draft_list = self.app.query_one(DraftsList)
-        # self.notify(f'{draft_list}')
         # Create a new draft if none selected
         if self.draft_id is None:
             new_draft = Draft.create(content=self.text)
             # Update the draft_id to prevent creating new drafts on save
-            self.draft_id = new_draft.id
+            self.draft_id = f'draft-{new_draft.id}'
             self.is_saved = True
             if new_draft:
                 draft_list.refresh_draft_list(current_search_term)
                 self.app.notify("New draft saved!", timeout=2)
         else:
             # If there is draft selected, save to that draft instead
-            selected_draft = Draft.access_draft(self.draft_id)
+            selected_draft = Draft.access_draft(extract_draft_id(self.draft_id))
             selected_draft.content = self.text
             selected_draft.save()
             # Reflect the change on sidebar

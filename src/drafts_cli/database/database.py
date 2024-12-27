@@ -43,11 +43,14 @@ class Draft(BaseModel):
         super().save(*args, **kwargs)
 
     @classmethod
-    def access_draft(cls, draft_id: int) -> "Draft":
+    def access_draft(cls, draft_id: str) -> "Draft":
         """Preferred way to access a draft by id.
         This will also update the accessed_at
         """
-        draft = Draft.get_by_id(draft_id)
+        formated_draft_id = draft_id
+        if "draft" in str(draft_id):
+            formated_draft_id = draft_id.split("-")[1]
+        draft = Draft.get_by_id(formated_draft_id)
         draft.accessed_at = datetime.utcnow()
         draft.save()
         return draft

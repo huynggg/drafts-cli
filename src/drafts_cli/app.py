@@ -18,8 +18,9 @@ class DraftsApp(App):
 
     CSS_PATH = "app.tcss"
     BINDINGS = [
-        Binding("ctrl+l", "search", "Search"),
-        Binding("ctrl+n", "new", "New"),
+        Binding("ctrl+l", "search", "Search", key_display="ctrl+l"),
+        Binding("ctrl+n", "new", "New", key_display="ctrl+n"),
+        Binding("ctrl+p", "command_palette", "Open Command Palette", key_display="ctrl+p", show=False),
     ]
 
     def compose(self) -> ComposeResult:
@@ -43,10 +44,6 @@ class DraftsApp(App):
         editor.text = ""
         editor.focus()
 
-    def on_key(self, event: Key):
-        if event.key == "tab" or event.key == "shift+tab":
-            self.query_one("#search", Input).can_focus = False
-
     def on_mount(self) -> None:
         # Focus on the search on start
         self.query_one("#editor", TextArea).focus()
@@ -57,6 +54,11 @@ class DraftsApp(App):
         yield SystemCommand("New", "Create new draft", self.action_new)
         yield SystemCommand("Search", "Search draft", self.action_search)
 
+    @on(Key)
+    def on_key(self, event: Key):
+        if event.key == "tab" or event.key == "shift+tab":
+            self.query_one("#search", Input).can_focus = False
+
     @on(ConfirmationMessage)
     # For some reason, this cannot be put in the ConfirmationModal
     def handle_draft_delete(self, message: ConfirmationMessage):
@@ -66,11 +68,10 @@ class DraftsApp(App):
             list_view = self.query_one("#draft-list", DraftsList)
             try:
                 # Highlighted child is ListItem, then query for Label to get the ID
-                highlighted_item_id = extract_draft_id(
-                    list_view.highlighted_child.query_one(DraftItem).id)
+                highlighted_item_id = list_view.highlighted_child.query_one(DraftItem).id
                 # NOTE: need to check if the draft exists?
                 # Also, do soft delete here
-                highlighted_draft = Draft.access_draft(highlighted_item_id)
+                highlighted_draft = Draft.access_draft(extract_draft_id(highlighted_item_id))
                 if highlighted_draft.delete_instance():
                     # Remove the ListItem by index
                     list_view.pop(list_view.index)
