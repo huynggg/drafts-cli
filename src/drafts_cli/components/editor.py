@@ -8,7 +8,6 @@ from textual.widgets.text_area import TextAreaTheme
 
 from database import Draft
 from components import DraftsList, ConfirmationModal
-from utilities import extract_draft_id
 
 # Saved as an exmaple for future
 my_theme = TextAreaTheme(
@@ -72,7 +71,7 @@ class Editor(TextArea):
                 self.app.notify("New draft saved!", timeout=2)
         else:
             # If there is draft selected, save to that draft instead
-            selected_draft = Draft.access_draft(extract_draft_id(self.draft_id))
+            selected_draft = Draft.access_draft(self.draft_id)
             selected_draft.content = self.text
             selected_draft.save()
             # Reflect the change on sidebar

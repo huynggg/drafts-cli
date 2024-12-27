@@ -10,7 +10,7 @@ from textual.widgets import Footer, Input, TextArea
 from database import Draft, initialize_db
 from messages import ConfirmationMessage
 from components import DraftsList, SideBar, Editor, DraftItem
-from utilities import logger, extract_draft_id
+from utilities import logger
 
 
 class DraftsApp(App):
@@ -71,7 +71,7 @@ class DraftsApp(App):
                 highlighted_item_id = list_view.highlighted_child.query_one(DraftItem).id
                 # NOTE: need to check if the draft exists?
                 # Also, do soft delete here
-                highlighted_draft = Draft.access_draft(extract_draft_id(highlighted_item_id))
+                highlighted_draft = Draft.access_draft(highlighted_item_id)
                 if highlighted_draft.delete_instance():
                     # Remove the ListItem by index
                     list_view.pop(list_view.index)

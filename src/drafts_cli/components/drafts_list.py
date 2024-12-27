@@ -5,7 +5,6 @@ from textual.binding import Binding
 from components import ConfirmationModal
 from components.draft_item import DraftItem
 from database import Draft
-from utilities import extract_draft_id
 
 
 class DraftsList(ListView):
@@ -31,7 +30,7 @@ class DraftsList(ListView):
         # Update the editor's opened draft id variable
         editor.draft_id = selected_draft.id
         # Get the content from the db
-        draft = Draft.access_draft(extract_draft_id(editor.draft_id))
+        draft = Draft.access_draft(editor.draft_id)
         # Update the content of the text area
         editor.focus()
         editor.text = draft.content
