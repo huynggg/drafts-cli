@@ -57,9 +57,8 @@ class DraftsApp(App):
         yield SystemCommand("New", "Create new draft", self.action_new)
         yield SystemCommand("Search", "Search draft", self.action_search)
 
-    # For some reason, this cannot be put in the ConfirmationModal
-
     @on(ConfirmationMessage)
+    # For some reason, this cannot be put in the ConfirmationModal
     def handle_draft_delete(self, message: ConfirmationMessage):
         if message.action == "delete_draft" and message.confirmation is True:
             # Current screen is the modal; need to pop() to go back to main screen
@@ -75,7 +74,6 @@ class DraftsApp(App):
                 if highlighted_draft.delete_instance():
                     # Remove the ListItem by index
                     list_view.pop(list_view.index)
-                    # Toast
                     self.notify("Draft was deleted!", timeout=4)
                     # Check if the deleted draft is also being opened in the editor
                     editor = self.query_one("#editor")
@@ -86,6 +84,16 @@ class DraftsApp(App):
                         editor.text = ""
             except AttributeError:
                 self.notify("Failed to delete draft ")
+
+    @on(ConfirmationMessage)
+    # For some reason, this cannot be put in the ConfirmationModal
+    def handle_save_draft(self, message: ConfirmationMessage):
+        if message.action == "save_draft" and message.confirmation is True:
+            self.pop_screen()
+            try:
+                self.query_one("#editor", Editor).action_save()
+            except Exception:
+                self.notify("Failed to save draft")
 
 
 if __name__ == "__main__":
