@@ -1,10 +1,11 @@
-import time
+from typing import Iterable
 from textual import on
 from textual.binding import Binding
-from textual.app import App, ComposeResult
+from textual.app import App, ComposeResult, SystemCommand
+from textual.screen import Screen
 from textual.events import Key
 from textual.containers import Horizontal
-from textual.widgets import Footer, Input, Label, TextArea
+from textual.widgets import Footer, Input, TextArea
 
 from database import Draft, initialize_db
 from messages import ConfirmationMessage
@@ -50,6 +51,12 @@ class DraftsApp(App):
         # Focus on the search on start
         self.query_one("#editor", TextArea).focus()
 
+    # Add this "create new" command to the command pallete
+    def get_system_commands(self, screen: Screen) -> Iterable[SystemCommand]:
+        yield from super().get_system_commands(screen)
+        yield SystemCommand("New", "Create new draft", self.action_new)
+        yield SystemCommand("Search", "Search draft", self.action_search)
+
     # For some reason, this cannot be put in the ConfirmationModal
 
     @on(ConfirmationMessage)
@@ -60,7 +67,8 @@ class DraftsApp(App):
             list_view = self.query_one("#draft-list", DraftsList)
             try:
                 # Highlighted child is ListItem, then query for Label to get the ID
-                highlighted_item_id = extract_draft_id(list_view.highlighted_child.query_one(DraftItem).id)
+                highlighted_item_id = extract_draft_id(
+                    list_view.highlighted_child.query_one(DraftItem).id)
                 # NOTE: need to check if the draft exists?
                 # Also, do soft delete here
                 highlighted_draft = Draft.access_draft(highlighted_item_id)
