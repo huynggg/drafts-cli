@@ -18,7 +18,6 @@ class SideBar(VerticalGroup):
         search_bar.border_title = "🔍"
         yield search_bar
         with DraftsList(id="draft-list"):
-            # NOTE: Soft delete
             drafts_list = Draft.select().order_by(Draft.modified_at.desc())
             for draft in drafts_list:
                 yield ListItem(DraftItem(content=draft.content, modified=str(draft.modified_at), id=f"draft-{draft.id}"))

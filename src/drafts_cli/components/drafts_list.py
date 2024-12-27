@@ -9,8 +9,8 @@ from database import Draft
 
 class DraftsList(ListView):
     BINDINGS = [
-        Binding("k", "cursor_up", "Up"),
         Binding("j", "cursor_down", "Down"),
+        Binding("k", "cursor_up", "Up"),
         Binding("ctrl+d", "delete", "Delete", key_display="ctrl+d"),
     ]
 
@@ -36,9 +36,16 @@ class DraftsList(ListView):
         editor.text = draft.content
         editor.cursor_location = editor.document.end
 
+        # Marking the draft item visually
+        # NOTE: Previously went with watching draft_id then update, but failed on save
+        # Remove the class for all the draft items first
+        for item in self.children:
+            item.get_child_by_type(DraftItem).remove_class("draft-selected")
+        # Then add the class to the selected one
+        selected_draft.add_class("draft-selected")
+
     def refresh_draft_list(self, search_term: str = "") -> None:
         self.clear()
-        # NOTE: Soft delete
         drafts_list = Draft.select().order_by(Draft.modified_at.desc())
         for draft in drafts_list:
             if search_term.lower() in draft.content.lower():

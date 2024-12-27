@@ -56,10 +56,12 @@ class DraftsApp(App):
 
     @on(Key)
     def on_key(self, event: Key):
-        if event.key == "tab" or event.key == "shift+tab":
+        if event.key == "tab" or event.key == "shift+tab" or event.key == "escape":
             self.query_one("#search", Input).can_focus = False
+        if event.key == "escape":
+            self.query_one(DraftsList).focus()
 
-    @on(ConfirmationMessage)
+    @ on(ConfirmationMessage)
     # For some reason, this cannot be put in the ConfirmationModal
     def handle_draft_delete(self, message: ConfirmationMessage):
         if message.action == "delete_draft" and message.confirmation is True:
@@ -69,7 +71,7 @@ class DraftsApp(App):
             try:
                 # Highlighted child is ListItem, then query for Label to get the ID
                 highlighted_item_id = list_view.highlighted_child.query_one(DraftItem).id
-                # NOTE: need to check if the draft exists?
+                # TODO: need to check if the draft exists?
                 # Also, do soft delete here
                 highlighted_draft = Draft.access_draft(highlighted_item_id)
                 if highlighted_draft.delete_instance():
@@ -86,7 +88,7 @@ class DraftsApp(App):
             except AttributeError:
                 self.notify("Failed to delete draft ")
 
-    @on(ConfirmationMessage)
+    @ on(ConfirmationMessage)
     # For some reason, this cannot be put in the ConfirmationModal
     def handle_save_draft(self, message: ConfirmationMessage):
         if message.action == "save_draft" and message.confirmation is True:

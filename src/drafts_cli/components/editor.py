@@ -2,12 +2,13 @@ from rich.style import Style
 from textual import on
 from textual.events import Key
 from textual.reactive import var
-from textual.widgets import TextArea, ListView
+from textual.widgets import TextArea
 from textual.binding import Binding
 from textual.widgets.text_area import TextAreaTheme
 
 from database import Draft
 from components import DraftsList, ConfirmationModal
+from components.draft_item import DraftItem
 
 # Saved as an exmaple for future
 my_theme = TextAreaTheme(
@@ -37,7 +38,6 @@ class Editor(TextArea):
         Binding("ctrl+l", "search", "Search", key_display="ctrl+l"),
         Binding("ctrl+n", "new", "New", key_display="ctrl+n"),
         Binding("ctrl+s", "save", "Save", key_display="ctrl+s"),
-        Binding("escape", "escape", "Escape", key_display="Back to list"),
     ]
 
     def on_mount(self) -> None:
@@ -48,7 +48,6 @@ class Editor(TextArea):
     @on(Key)
     def save_confirmation(self, event: Key) -> None:
         if event.key == "escape" and self.is_saved is False:
-            self.notify("Not saved")
             # Pull up the modal and save
             self.app.push_screen(ConfirmationModal(message="Save this draft?", action="save_draft"))
 
