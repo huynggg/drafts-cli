@@ -7,7 +7,7 @@ from textual.events import Key
 from textual.containers import Horizontal
 from textual.widgets import Footer, Input, TextArea
 
-from database import Draft, initialize_db
+from database import Draft, DB_PATH, initialize_db
 from messages import ConfirmationMessage
 from components import DraftsList, SideBar, Editor, DraftItem
 from utilities import logger
@@ -26,10 +26,13 @@ class DraftsApp(App):
     def compose(self) -> ComposeResult:
         """Compose the UI of the app"""
         # yield Header()
+        self.side_bar = SideBar()
+        self.editor = Editor.code_editor(id="editor", language="markdown")
+
         with Horizontal():
-            yield SideBar()
-            yield Editor.code_editor(id="editor", language="markdown")
-        yield Footer()
+            yield self.side_bar
+            yield self.editor
+            yield Footer()
 
     def action_search(self) -> None:
         search_bar = self.query_one("#search", Input)
@@ -101,6 +104,6 @@ class DraftsApp(App):
 
 if __name__ == "__main__":
     # Initialize db on start
-    initialize_db(Draft)
+    initialize_db(DB_PATH)
     app = DraftsApp()
     app.run()

@@ -6,9 +6,10 @@ from utilities import logger
 
 # Path to the database file
 DB_PATH = 'drafts.db'
+# DB_PATH = os.getenv('DB_PATH', 'drafts.db')  # Use 'drafts.db' if DB_PATH is not set
 
 # Initialize the database
-db = SqliteDatabase(DB_PATH)
+db = SqliteDatabase(None)
 
 
 # Base model class
@@ -49,14 +50,16 @@ class Draft(BaseModel):
 
 
 # Function to initialize the database
-def initialize_db(db_model: BaseModel) -> None:
+def initialize_db(db_path: str) -> SqliteDatabase:
     # Check if the database file exists
-    if not os.path.exists(DB_PATH):
-        logger.info(f"Database file {DB_PATH} does not exist. Creating...")
+    if not os.path.exists(db_path):
+        logger.info(f"Database file {db_path} does not exist. Creating...")
     else:
-        logger.info(f"Database file {DB_PATH} already exists.")
+        logger.info(f"Database file {db_path} already exists.")
 
     # Connect to the database and create tables
+    db.init(db_path)
     with db:
-        db.create_tables([db_model], safe=True)
+        db.create_tables([Draft], safe=True)
         logger.info("Database and tables created successfully.")
+        return db
