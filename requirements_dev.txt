@@ -1,0 +1,5 @@
+peewee
+textual
+textual-dev
+pytest
+pytest-asyncio

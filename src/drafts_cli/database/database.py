@@ -1,16 +1,8 @@
 import os
-import logging
-from textual.logging import TextualHandler
 from peewee import SqliteDatabase, Model, TextField, DateTimeField, BooleanField, AutoField
 from datetime import datetime
+from utilities import logger
 
-# Configure logging
-logging.basicConfig(
-    level="NOTSET",
-    handlers=[TextualHandler()],
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger(__name__)
 
 # Path to the database file
 DB_PATH = 'drafts.db'
@@ -57,7 +49,7 @@ class Draft(BaseModel):
 
 
 # Function to initialize the database
-def initialize_db():
+def initialize_db(db_model: BaseModel) -> None:
     # Check if the database file exists
     if not os.path.exists(DB_PATH):
         logger.info(f"Database file {DB_PATH} does not exist. Creating...")
@@ -66,5 +58,5 @@ def initialize_db():
 
     # Connect to the database and create tables
     with db:
-        db.create_tables([Draft], safe=True)
+        db.create_tables([db_model], safe=True)
         logger.info("Database and tables created successfully.")

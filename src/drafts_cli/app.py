@@ -101,6 +101,6 @@ class DraftsApp(App):
 
 if __name__ == "__main__":
     # Initialize db on start
-    initialize_db()
+    initialize_db(Draft)
     app = DraftsApp()
     app.run()
