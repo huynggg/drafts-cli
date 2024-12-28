@@ -1,6 +1,6 @@
 import os
 from peewee import SqliteDatabase, Model, TextField, DateTimeField, BooleanField, AutoField
-from datetime import datetime
+from datetime import datetime, timezone
 from utilities import logger
 
 
@@ -32,7 +32,8 @@ class Draft(BaseModel):
     # Can be used for data validation
     def save(self, *args, **kwargs):
         # Automatically update `modified_at` before saving
-        self.modified_at = datetime.utcnow()
+        # self.modified_at = datetime.utcnow()
+        self.modified_at = datetime.now(timezone.utc)
         super().save(*args, **kwargs)
 
     @classmethod
@@ -44,7 +45,8 @@ class Draft(BaseModel):
         if "draft" in str(draft_id):
             formated_draft_id = draft_id.split("-")[1]
         draft = Draft.get_by_id(formated_draft_id)
-        draft.accessed_at = datetime.utcnow()
+        # draft.accessed_at = datetime.utcnow()
+        draft.accessed_at = datetime.now(timezone.utc)
         draft.save()
         return draft
 

@@ -3,3 +3,4 @@ textual
 textual-dev
 pytest
 pytest-asyncio
+pytz
