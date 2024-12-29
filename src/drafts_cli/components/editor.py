@@ -8,7 +8,7 @@ from textual.widgets.text_area import TextAreaTheme
 
 from database import Draft
 from components import DraftsList, ConfirmationModal
-from components.draft_item import DraftItem
+# from components.draft_item import DraftItem
 
 # Saved as an exmaple for future
 my_theme = TextAreaTheme(

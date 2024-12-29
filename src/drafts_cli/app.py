@@ -10,7 +10,7 @@ from textual.widgets import Footer, Input, TextArea
 from database import Draft, DB_PATH, initialize_db
 from messages import ConfirmationMessage
 from components import DraftsList, SideBar, Editor, DraftItem
-from utilities import logger
+# from utilities import logger
 
 
 class DraftsApp(App):
@@ -64,7 +64,7 @@ class DraftsApp(App):
         if event.key == "escape":
             self.query_one(DraftsList).focus()
 
-    @ on(ConfirmationMessage)
+    @on(ConfirmationMessage)
     # For some reason, this cannot be put in the ConfirmationModal
     def handle_draft_delete(self, message: ConfirmationMessage):
         if message.action == "delete_draft" and message.confirmation is True:
@@ -91,7 +91,7 @@ class DraftsApp(App):
             except AttributeError:
                 self.notify("Failed to delete draft ")
 
-    @ on(ConfirmationMessage)
+    @on(ConfirmationMessage)
     # For some reason, this cannot be put in the ConfirmationModal
     def handle_save_draft(self, message: ConfirmationMessage):
         if message.action == "save_draft" and message.confirmation is True:
