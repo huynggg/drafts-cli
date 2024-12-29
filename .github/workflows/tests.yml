@@ -1,11 +1,13 @@
 name: Run Tests Before Merge
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  test:
+  run-py-test:
+    name: Tests on main
     runs-on: ubuntu-latest
 
     steps:
