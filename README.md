@@ -1,1 +1,1 @@
-# Clone of drafts as a TUI app
+# Clone of Drafts as a TUI app
