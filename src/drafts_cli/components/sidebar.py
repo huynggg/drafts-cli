@@ -13,13 +13,13 @@ class SideBar(VerticalGroup):
     """The left bar containing the draft list and a search bar"""
 
     def compose(self) -> ComposeResult:
-        search_bar = Input(placeholder="Search...", type="text", id="search")
-        search_bar.can_focus = False
-        search_bar.border_title = "🔍"
-        yield search_bar
-        with DraftsList(id="draft-list"):
-            drafts_list = Draft.select().order_by(Draft.modified_at.desc())
-            for draft in drafts_list:
+        self.search_bar = Input(placeholder="Search...", type="text", id="search")
+        self.search_bar.can_focus = False
+        self.search_bar.border_title = "🔍"
+        yield self.search_bar
+        with DraftsList(id="draft-list") as self.draft_list:
+            drafts_list_db = Draft.select().order_by(Draft.modified_at.desc())
+            for draft in drafts_list_db:
                 yield ListItem(DraftItem(content=draft.content, modified=str(draft.modified_at), id=f"draft-{draft.id}"))
 
     @on(Input.Changed, "#search")
