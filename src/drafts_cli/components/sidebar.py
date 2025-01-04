@@ -3,10 +3,10 @@ from textual.containers import VerticalGroup
 from textual.widgets import Input, ListItem
 from textual.app import ComposeResult
 
-from components import DraftsList
-from components.draft_item import DraftItem
-from database import Draft
-from utilities import logger
+from drafts_cli.components import DraftsList
+from drafts_cli.components.draft_item import DraftItem
+from drafts_cli.database import Draft
+from drafts_cli.utilities import logger
 
 
 class SideBar(VerticalGroup):

@@ -1,6 +1,6 @@
 from textual.widgets import Static, Label
 from textual.app import ComposeResult
-from utilities import format_timestamp
+from drafts_cli.utilities import format_timestamp
 
 
 class DraftItem(Static):

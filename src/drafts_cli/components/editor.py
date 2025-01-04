@@ -6,8 +6,8 @@ from textual.widgets import TextArea
 from textual.binding import Binding
 from textual.widgets.text_area import TextAreaTheme
 
-from database import Draft
-from components import DraftsList, ConfirmationModal
+from drafts_cli.database import Draft
+from drafts_cli.components import DraftsList, ConfirmationModal
 # from components.draft_item import DraftItem
 
 # Saved as an exmaple for future
