@@ -6,14 +6,14 @@ authors = ["huynggg <huyanguyen3695@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<4.0.0"
+python = ">=3.8.1,<4.0.0"
 peewee = "*"
 textual = "*"
 pytz = "*"
 
 [tool.poetry.dev-dependencies]
 peewee = "*"
-textual = "*"
+textual = ">=1.0.0"
 textual-dev = "*"
 pytest = "*"
 pytest-asyncio = "*"
