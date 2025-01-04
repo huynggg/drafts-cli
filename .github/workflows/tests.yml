@@ -22,14 +22,16 @@ jobs:
           python-version: '3.x'
 
       # Step 3: Install dependencies
-      - name: Install dependencies
+      - name: Install Poetry
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements_dev.txt
+          curl -sSL https://install.python-poetry.org | python3 -
 
-      # Step 4: Run pytest
+      - name: Install dependencies using Poetry
+        run: |
+          poetry install --with dev
+
+      # Step 4: Run tests with pytest
       - name: Run tests with pytest
         run: |
-          cd src/drafts_cli
-          pytest --disable-warnings
+          poetry run pytest --disable-warnings
 
