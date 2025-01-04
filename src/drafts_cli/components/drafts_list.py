@@ -2,9 +2,9 @@ from textual import on
 from textual.widgets import ListView, ListItem
 from textual.binding import Binding
 
-from components import ConfirmationModal
-from components.draft_item import DraftItem
-from database import Draft
+from drafts_cli.components import ConfirmationModal
+from drafts_cli.components.draft_item import DraftItem
+from drafts_cli.database import Draft
 
 
 class DraftsList(ListView):

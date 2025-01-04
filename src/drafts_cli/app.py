@@ -7,9 +7,9 @@ from textual.events import Key
 from textual.containers import Horizontal
 from textual.widgets import Footer, Input, TextArea
 
-from database import Draft, DB_PATH, initialize_db
-from messages import ConfirmationMessage
-from components import DraftsList, SideBar, Editor, DraftItem
+from drafts_cli.database import Draft, DB_PATH, initialize_db
+from drafts_cli.messages import ConfirmationMessage
+from drafts_cli.components import DraftsList, SideBar, Editor, DraftItem
 # from utilities import logger
 
 
@@ -102,8 +102,12 @@ class DraftsApp(App):
                 self.notify("Failed to save draft")
 
 
-if __name__ == "__main__":
+def main():
     # Initialize db on start
     initialize_db(DB_PATH)
     app = DraftsApp()
     app.run()
+
+
+if __name__ == "__main__":
+    main()

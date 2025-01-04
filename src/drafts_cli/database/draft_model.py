@@ -1,7 +1,7 @@
 import os
 from peewee import SqliteDatabase, Model, TextField, DateTimeField, BooleanField, AutoField
 from datetime import datetime, timezone
-from utilities import logger
+from drafts_cli.utilities import logger
 
 
 # Path to the database file

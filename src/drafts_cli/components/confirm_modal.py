@@ -5,7 +5,7 @@ from textual.containers import Horizontal, Vertical
 from textual.widgets import Label, Button
 from textual.screen import ModalScreen
 
-from messages import ConfirmationMessage
+from drafts_cli.messages import ConfirmationMessage
 
 
 # Confirmation widget

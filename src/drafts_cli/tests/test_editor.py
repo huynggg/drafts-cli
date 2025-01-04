@@ -4,8 +4,8 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import pytest
-from app import DraftsApp
-from database import Draft, initialize_db
+from drafts_cli.app import DraftsApp
+from drafts_cli.database import Draft, initialize_db
 
 
 @pytest.fixture
