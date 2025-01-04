@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "drafts-cli"
+version = "0.1.0"
+description = ""
+authors = ["huynggg <huyanguyen3695@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+peewee = "*"
+textual = "*"
+pytz = "*"
+
+[tool.poetry.dev-dependencies]
+peewee = "*"
+textual = "*"
+textual-dev = "*"
+pytest = "*"
+pytest-asyncio = "*"
+pytz = "*"
+
+[tool.poetry.scripts]
+drafts = "src.drafts_cli.app:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
