@@ -1,7 +1,7 @@
 import pytest
 from drafts_cli.app import DraftsApp
 from drafts_cli.database import Draft
-from .setup import setup_test_db
+from .setup_test import setup_test_db
 
 
 @pytest.mark.asyncio
